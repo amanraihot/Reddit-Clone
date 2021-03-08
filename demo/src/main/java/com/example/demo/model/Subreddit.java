@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.sun.xml.bind.v2.schemagen.episode.Package;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Generated;
 import static javax.persistence.FetchType.LAZY;
@@ -10,6 +12,7 @@ import java.util.List;
 
 @Data
 @Entity
+@Builder
 @Table(name="subreddit")
 public class Subreddit {
     @Id

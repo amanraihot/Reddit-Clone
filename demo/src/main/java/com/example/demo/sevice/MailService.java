@@ -1,8 +1,10 @@
 package com.example.demo.sevice;
 
+import com.example.demo.Exception.SpringRedditException;
 import com.example.demo.model.NotificationEmail;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,19 +20,29 @@ import javax.mail.internet.MimeMessage;
 @Slf4j
 public class MailService {
 
-    private final JavaMailSender mailSender;
-    private final MailContentBuilder mailContentBuilder;
 
-    void sendMail(NotificationEmail notificationEmail) throws MailException {
-        MimeMessagePreparator mimeMessagePreparator = (mimeMessage) -> {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
-            mimeMessageHelper.setFrom("amanraihot@gmail.com");
-            mimeMessageHelper.setTo(notificationEmail.getRecipient());
-            mimeMessageHelper.setText(notificationEmail.getBody());
+    @Autowired
+    private  JavaMailSender mailSender;
+    @Autowired
+    private  MailContentBuilder mailContentBuilder;
+
+    @Async
+    void sendMail(NotificationEmail notificationEmail) {
+        MimeMessagePreparator messagePreparator = mimeMessage -> {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+            messageHelper.setFrom("springreddit@email.com");
+            messageHelper.setTo(notificationEmail.getRecipient());
+            messageHelper.setSubject(notificationEmail.getSubject());
+            messageHelper.setText(notificationEmail.getBody());
         };
-        mailSender.send(mimeMessagePreparator);
+        try {
+            mailSender.send(messagePreparator);
+            log.info("Activation email sent!!");
+        } catch (MailException e) {
+            log.error("Exception occurred when sending mail", e);
+            throw new SpringRedditException("Exception occurred when sending mail to " + notificationEmail.getRecipient(), e);
+        }
     }
-
 
 
 
